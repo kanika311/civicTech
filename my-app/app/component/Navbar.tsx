@@ -24,22 +24,22 @@ export default function Navbar() {
 
         {/* Nav Links */}
         <div className="hidden md:flex items-center gap-8">
-          <Link href="/dashboard" className={linkClass("/dashboard")}>
+          <Link href="/citizen/dashboard" className={linkClass("/citizen/dashboard")}>
             <LayoutDashboard size={18} />
             Dashboard
           </Link>
 
-          <Link href="/map" className={linkClass("/map")}>
+          <Link href="/citizen/map" className={linkClass("/citizen/map")}>
             <Map size={18} />
             Map
           </Link>
 
-          <Link href="/leaderboard" className={linkClass("/leaderboard")}>
+          <Link href="/citizen/leaderboard" className={linkClass("/citizen/leaderboard")}>
             <Trophy size={18} />
             Leaderboard
           </Link>
 
-          <Link href="/profile" className={linkClass("/profile")}>
+          <Link href="/citizen/profile" className={linkClass("/citizen/profile")}>
             <User size={18} />
             Profile
           </Link>

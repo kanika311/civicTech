@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { CgProfile } from "react-icons/cg";
-import { CiMap, CiTrophy } from "react-icons/ci";
+import Navbar from "../../component/Navbar";
+
+
 
 export default function CitizenDashboard() {
   const complaints = [
@@ -41,26 +41,7 @@ export default function CitizenDashboard() {
     <div className="min-h-screen bg-gray-200">
 
       {/* ================= NAVBAR ================= */}
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <h1   className="flex items-center gap-2 text-blue-600 font-semibold">
-            CivicTrack
-          </h1>
-
-          <div className="hidden md:flex items-center gap-8 text-gray-700">
-            <Link href="#" className="text-blue-600 font-[600] ">
-              Dashboard
-            </Link>
-            <Link href="/citizen/map"   className="flex items-center gap-2 hover:text-blue-600 transition"><CiMap />Map</Link>
-            <Link href="/citizen/leaderboard"   className="flex items-center gap-2 hover:text-blue-600 transition"><CiTrophy />Leaderboard</Link>
-            <Link href="/citizen/profile"   className="flex items-center gap-2 hover:text-blue-600 transition"><CgProfile />Profile</Link>
-
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg">
-              Submit Complaint
-            </button>
-          </div>
-        </div>
-      </nav>
+   <Navbar/>
 
       {/* ================= CONTENT ================= */}
       <div className="max-w-6xl mx-auto px-6 py-12">

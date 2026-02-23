@@ -1,4 +1,5 @@
-import Navbar from "@/app/component/navbar"
+import Navbar from "../../component/Navbar"
+
 
 
 export default function ProfilePage() {
@@ -6,7 +7,7 @@ export default function ProfilePage() {
     <>
       <Navbar />
 
-      <div className="bg-gray-50 min-h-screen">
+      <div className="bg-gray-50 min-h-screen"> 
         <div className="max-w-7xl mx-auto px-6 py-10">
 
           {/* Title */}
