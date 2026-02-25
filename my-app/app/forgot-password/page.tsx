@@ -19,7 +19,7 @@ export default function ForgotPasswordPage() {
       .required("Email is required"),
   });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
       }, 1000);
 
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : "Something went wrong");
       setLoading(false);
     }
   };

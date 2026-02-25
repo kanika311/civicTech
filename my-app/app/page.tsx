@@ -141,7 +141,7 @@ export default function Home() {
   );
 }
 
-function FeatureCard({ title }) {
+function FeatureCard({ title }: { title: string }) {
   return (
     <div className="bg-gray-100 p-6 rounded-xl shadow hover:shadow-lg transition">
       <h3 className="text-xl font-semibold text-blue-600 mb-3">{title}</h3>

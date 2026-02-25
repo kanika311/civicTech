@@ -29,7 +29,7 @@ export default function CitizenDashboard() {
     },
   ];
 
-  const statusStyle = (status) => {
+  const statusStyle = (status: string) => {
     if (status === "Resolved")
       return "bg-green-100 text-green-600";
     if (status === "Pending")
@@ -125,7 +125,15 @@ export default function CitizenDashboard() {
 
 /* ================= COMPONENTS ================= */
 
-function Card({ title, value, valueColor = "text-blue-600" }) {
+function Card({
+  title,
+  value,
+  valueColor = "text-blue-600",
+}: {
+  title: string;
+  value: string | number;
+  valueColor?: string;
+}) {
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <p className="text-gray-600 text-sm mb-2">{title}</p>
@@ -136,7 +144,7 @@ function Card({ title, value, valueColor = "text-blue-600" }) {
   );
 }
 
-function CategoryCard({ name, count }) {
+function CategoryCard({ name, count }: { name: string; count: string | number }) {
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <p className="text-gray-600 text-sm">{name}</p>
