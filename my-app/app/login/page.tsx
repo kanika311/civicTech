@@ -3,14 +3,17 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import * as Yup from "yup";
+import { authApi } from "@/lib/api";
+import { useAppDispatch } from "@/store/hooks";
+import { setCredentials, setLoading, setError } from "@/store/authSlice";
 
 export default function LoginPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [role, setRole] = useState<"citizen" | "government">("citizen");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoadingState] = useState(false);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
   const [formData, setFormData] = useState({
     email: "",
     governmentId: "",
@@ -39,39 +42,43 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
+    setLoadingState(true);
     setErrors({});
+    dispatch(setError(null));
 
     try {
       await loginSchema.validate(formData, { abortEarly: false });
       const email = role === "citizen" ? formData.email : formData.governmentId;
-      let res: Response;
-      try {
-        res = await fetch(`${API_URL}/api/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password: formData.password }),
-        });
-      } catch (networkError) {
+
+      const result = await authApi.login({
+        email,
+        password: formData.password,
+      });
+
+      if (!result.ok) {
+        const isNetwork =
+          result.error.includes("fetch") ||
+          result.error.includes("Network") ||
+          result.error.includes("Failed");
         setErrors({
-          submit:
-            "Cannot connect to server. Is the backend running? Try " +
-            API_URL,
+          submit: isNetwork
+            ? "Cannot connect to server. Is the backend running at " +
+              (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000") +
+              "?"
+            : result.error,
         });
+        dispatch(setError(result.error));
         return;
       }
 
-      const data = await res.json().catch(() => ({}));
+      const { token, role: userRole } = result.data;
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("token", token);
+      }
+      dispatch(setCredentials({ token, role: userRole }));
 
-      if (!res.ok) {
-        setErrors({ submit: data.message || "Login failed" });
-        return;
-      }
-      if (data.token) {
-        if (typeof window !== "undefined") window.localStorage.setItem("token", data.token);
-      }
       router.push(
-        role === "citizen" ? "/citizen/dashboard" : "/govenmnet/dashboard"
+        userRole === "government" ? "/govenmnet/dashboard" : "/citizen/dashboard"
       );
     } catch (validationErrors: unknown) {
       const formattedErrors: Record<string, string> = {};
@@ -79,19 +86,28 @@ export default function LoginPage() {
         validationErrors &&
         typeof validationErrors === "object" &&
         "inner" in validationErrors &&
-        Array.isArray((validationErrors as { inner: { path?: string; message?: string }[] }).inner)
+        Array.isArray(
+          (
+            validationErrors as {
+              inner: { path?: string; message?: string }[];
+            }
+          ).inner
+        )
       ) {
-        (validationErrors as { inner: { path?: string; message?: string }[] }).inner.forEach(
-          (err: { path?: string; message?: string }) => {
-            if (err.path && err.message) formattedErrors[err.path] = err.message;
+        (
+          validationErrors as {
+            inner: { path?: string; message?: string }[];
           }
-        );
+        ).inner.forEach((err: { path?: string; message?: string }) => {
+          if (err.path && err.message) formattedErrors[err.path] = err.message;
+        });
       } else {
         formattedErrors.submit = "Something went wrong. Please try again.";
       }
       setErrors(formattedErrors);
     } finally {
-      setLoading(false);
+      setLoadingState(false);
+      dispatch(setLoading(false));
     }
   };
 
@@ -103,7 +119,6 @@ export default function LoginPage() {
         </h1>
 
         <form onSubmit={handleLogin} className="space-y-5">
-          {/* Role Toggle */}
           <div className="flex bg-gray-100 rounded-full p-1 text-sm">
             <button
               type="button"
@@ -116,7 +131,6 @@ export default function LoginPage() {
             >
               Citizen
             </button>
-
             <button
               type="button"
               onClick={() => setRole("government")}
@@ -130,7 +144,6 @@ export default function LoginPage() {
             </button>
           </div>
 
-          {/* Conditional Field */}
           {role === "citizen" ? (
             <div>
               <input
@@ -148,7 +161,7 @@ export default function LoginPage() {
             <div>
               <input
                 name="governmentId"
-                placeholder="Government ID"
+                placeholder="Government ID (same as when you registered)"
                 onChange={handleChange}
                 className="w-full p-3 border rounded-xl"
               />
@@ -160,7 +173,6 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Password */}
           <div>
             <input
               name="password"

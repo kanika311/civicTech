@@ -31,26 +31,29 @@ import {
 } from "@mui/icons-material";
 import { BarChart, LineChart } from "@mui/x-charts";
 import GovNavbar from "../../component/GovNavbar";
+import {
+  governmentApi,
+  getUploadUrl,
+  type GovComplaintItem,
+  type GovernmentDashboardResponse,
+} from "../../../lib/api";
 
-const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-const allocatedData = [4200, 3800, 5000, 4700, 5400, 6000];
-const spentData = [3800, 3300, 4500, 4200, 5000, 5800];
+const DEFAULT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+const DEFAULT_ALLOCATED = [4200, 3800, 5000, 4700, 5400, 6000];
+const DEFAULT_SPENT = [3800, 3300, 4500, 4200, 5000, 5800];
+const DEFAULT_DEPARTMENT_BUDGET = [
+  { dept: "Education", value: 3400 },
+  { dept: "Healthcare", value: 3200 },
+  { dept: "Infrastructure", value: 2800 },
+  { dept: "Public Safety", value: 2000 },
+  { dept: "Environment", value: 900 },
+];
 
 const departments = [
   { name: "Public Works", score: 9850, growth: "+12%" },
   { name: "Education Dept.", score: 9420, growth: "+8%" },
   { name: "Health Services", score: 9180, growth: "+15%" },
   { name: "Parks & Recreation", score: 8950, growth: "+5%" },
-];
-
-const citizenEngagementData = [100000, 102000, 101500, 103500, 104500, 105500];
-
-const departmentBudget = [
-  { dept: "Education", value: 3400 },
-  { dept: "Healthcare", value: 3200 },
-  { dept: "Infrastructure", value: 2800 },
-  { dept: "Public Safety", value: 2000 },
-  { dept: "Environment", value: 900 },
 ];
 
 const districts = [
@@ -60,45 +63,68 @@ const districts = [
   { name: "East Side", count: 6, status: "Active" as const },
 ];
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
-export type ComplaintItem = {
-  _id: string;
-  title?: string;
-  description?: string;
-  category?: string;
-  location?: string;
-  photos?: string[];
-  status?: string;
-  createdAt?: string;
-  user?: { name?: string; email?: string };
-};
-
 export default function DashboardClient() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [complaints, setComplaints] = useState<ComplaintItem[]>([]);
+  const [complaints, setComplaints] = useState<GovComplaintItem[]>([]);
   const [complaintsLoading, setComplaintsLoading] = useState(true);
-  const [selectedComplaint, setSelectedComplaint] = useState<ComplaintItem | null>(null);
+  const [selectedComplaint, setSelectedComplaint] = useState<GovComplaintItem | null>(null);
+  const [dashboardData, setDashboardData] = useState<GovernmentDashboardResponse | null>(null);
+  const [dashboardLoading, setDashboardLoading] = useState(true);
+  const [statusUpdating, setStatusUpdating] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
-    if (!token) {
-      setComplaintsLoading(false);
-      return;
-    }
-    fetch(`${API_URL}/api/government/complaints`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => setComplaints(Array.isArray(data) ? data : []))
+    governmentApi
+      .getComplaints()
+      .then((res) => {
+        if (res.ok && Array.isArray(res.data)) setComplaints(res.data);
+        else setComplaints([]);
+      })
       .catch(() => setComplaints([]))
       .finally(() => setComplaintsLoading(false));
   }, []);
 
+  useEffect(() => {
+    governmentApi
+      .getDashboard()
+      .then((res) => {
+        if (res.ok) setDashboardData(res.data);
+        else setDashboardData(null);
+      })
+      .catch(() => setDashboardData(null))
+      .finally(() => setDashboardLoading(false));
+  }, []);
+
+  const months = dashboardData?.budget?.months ?? DEFAULT_MONTHS;
+  const allocatedData = dashboardData?.budget?.allocatedData ?? DEFAULT_ALLOCATED;
+  const spentData = dashboardData?.budget?.spentData ?? DEFAULT_SPENT;
+  const departmentBudget = dashboardData?.budget?.byDepartment ?? DEFAULT_DEPARTMENT_BUDGET;
+  const citizenEngagementData =
+    dashboardData?.engagement?.complaintsByMonth?.length
+      ? dashboardData.engagement.complaintsByMonth
+      : [0, 0, 0, 0, 0, 0];
+
+  const totalCitizens = dashboardData?.engagement?.totalCitizens ?? 0;
+  const totalComplaintsEngagement = dashboardData?.engagement?.totalComplaints ?? 0;
+  const budgetTotalAllocated = dashboardData?.budget?.totalAllocated ?? 29300;
+  const budgetTotalSpent = dashboardData?.budget?.totalSpent ?? 26600;
+
+  const handleUpdateStatus = (id: string, newStatus: "Pending" | "Approved" | "In Progress" | "Resolved") => {
+    setStatusUpdating(id);
+    governmentApi
+      .updateComplaintStatus(id, newStatus)
+      .then((res) => {
+        if (res.ok) {
+          setComplaints((prev) => prev.map((c) => (c._id === id ? { ...c, status: newStatus } : c)));
+          setSelectedComplaint((prev) => (prev?._id === id ? { ...prev, status: newStatus } : prev));
+        }
+      })
+      .finally(() => setStatusUpdating(null));
+  };
+
   const totalActiveIssues = complaints.length;
 
-  const sampleComplaints: ComplaintItem[] = [
+  const sampleComplaints: GovComplaintItem[] = [
     {
       _id: "sample-1",
       title: "Pothole on Main Street",
@@ -151,23 +177,23 @@ export default function DashboardClient() {
         {[
           {
             title: "Active Citizens",
-            value: "127.5K",
+            value: dashboardLoading ? "—" : (totalCitizens >= 1000 ? `${(totalCitizens / 1000).toFixed(1)}K` : String(totalCitizens)),
             icon: <People sx={{ color: "#1976d2" }} />,
-            growth: "+12.5%",
+            growth: "Registered",
             positive: true,
           },
           {
-            title: "Pending Proposals",
-            value: "284",
+            title: "Total Complaints",
+            value: dashboardLoading ? "—" : String(totalComplaintsEngagement),
             icon: <Description sx={{ color: "#1976d2" }} />,
-            growth: "-5.2%",
-            positive: false,
+            growth: "All time",
+            positive: true,
           },
           {
             title: "Budget Allocated",
-            value: "$12.8M",
+            value: dashboardLoading ? "—" : `$${(budgetTotalAllocated / 1000).toFixed(1)}K`,
             icon: <TrendingUp sx={{ color: "#1976d2" }} />,
-            growth: "+8.3%",
+            growth: `Spent $${(budgetTotalSpent / 1000).toFixed(1)}K`,
             positive: true,
           },
         ].map((item, index) => (
@@ -285,15 +311,19 @@ export default function DashboardClient() {
                         bgcolor:
                           c.status === "Resolved"
                             ? "#e8f5e9"
-                            : c.status === "In Progress"
+                            : c.status === "Approved"
                               ? "#e3f2fd"
-                              : "#fff3e0",
+                              : c.status === "In Progress"
+                                ? "#e8eaf6"
+                                : "#fff3e0",
                         color:
                           c.status === "Resolved"
                             ? "#2e7d32"
-                            : c.status === "In Progress"
+                            : c.status === "Approved"
                               ? "#1976d2"
-                              : "#ed6c02",
+                              : c.status === "In Progress"
+                                ? "#3949ab"
+                                : "#ed6c02",
                       }}
                     />
                   </Box>
@@ -384,15 +414,15 @@ export default function DashboardClient() {
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" fontWeight="bold">Citizen Engagement</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Active citizens over time
+                Complaints submitted per month
               </Typography>
               <Box sx={{ width: "100%", height: 320 }}>
                 <LineChart
                   height={300}
                   xAxis={[{ scaleType: "point", data: months }]}
-                  yAxis={[{ min: 0, max: 140000 }]}
+                  yAxis={[{ min: 0 }]}
                   series={[
-                    { data: citizenEngagementData, label: "Citizens", color: "#1976d2", area: true },
+                    { data: citizenEngagementData, label: "Complaints", color: "#1976d2", area: true },
                   ]}
                 />
               </Box>
@@ -534,8 +564,63 @@ export default function DashboardClient() {
                 <Chip
                   size="small"
                   label={selectedComplaint.status || "Pending"}
-                  sx={{ mt: 1 }}
+                  sx={{
+                    mt: 1,
+                    bgcolor:
+                      selectedComplaint.status === "Resolved"
+                        ? "#e8f5e9"
+                        : selectedComplaint.status === "Approved"
+                          ? "#e3f2fd"
+                          : selectedComplaint.status === "In Progress"
+                            ? "#e8eaf6"
+                            : "#fff3e0",
+                    color:
+                      selectedComplaint.status === "Resolved"
+                        ? "#2e7d32"
+                        : selectedComplaint.status === "Approved"
+                          ? "#1976d2"
+                          : selectedComplaint.status === "In Progress"
+                            ? "#3949ab"
+                            : "#ed6c02",
+                  }}
                 />
+                {!selectedComplaint._id.startsWith("sample-") && (
+                  <Box sx={{ mt: 2, display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    {selectedComplaint.status === "Pending" && (
+                      <Button
+                        size="small"
+                        variant="contained"
+                        disabled={statusUpdating === selectedComplaint._id}
+                        onClick={() => handleUpdateStatus(selectedComplaint._id, "Approved")}
+                        sx={{ textTransform: "none", bgcolor: "#2e7d32", "&:hover": { bgcolor: "#1b5e20" } }}
+                      >
+                        {statusUpdating === selectedComplaint._id ? "Updating…" : "Verify & Approve"}
+                      </Button>
+                    )}
+                    {selectedComplaint.status === "Approved" && (
+                      <Button
+                        size="small"
+                        variant="contained"
+                        disabled={statusUpdating === selectedComplaint._id}
+                        onClick={() => handleUpdateStatus(selectedComplaint._id, "In Progress")}
+                        sx={{ textTransform: "none" }}
+                      >
+                        {statusUpdating === selectedComplaint._id ? "Updating…" : "Mark In Progress"}
+                      </Button>
+                    )}
+                    {(selectedComplaint.status === "Approved" || selectedComplaint.status === "In Progress") && (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        disabled={statusUpdating === selectedComplaint._id}
+                        onClick={() => handleUpdateStatus(selectedComplaint._id, "Resolved")}
+                        sx={{ textTransform: "none", borderColor: "#2e7d32", color: "#2e7d32" }}
+                      >
+                        {statusUpdating === selectedComplaint._id ? "Updating…" : "Mark Resolved"}
+                      </Button>
+                    )}
+                  </Box>
+                )}
                 <Typography variant="body2" sx={{ mt: 2 }}>
                   {selectedComplaint.description || "No description."}
                 </Typography>
@@ -585,7 +670,7 @@ export default function DashboardClient() {
                         <Box
                           key={i}
                           component="img"
-                          src={url}
+                          src={getUploadUrl(url)}
                           alt=""
                           sx={{
                             width: 120,

@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Box, Typography } from "@mui/material";
+
+import {
+ 
+  Business as BuildingIcon,
+  
+} from "@mui/icons-material";
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -10,45 +17,86 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-gray-50">
 
       {/* ================= NAVBAR ================= */}
-      <nav className="bg-white shadow-md fixed w-full z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-blue-700">CivicTrack</h1>
+      <nav className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-md shadow-sm z-50 border-b border-gray-100">
+  <div className="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8 text-gray-700 font-medium">
-            <a href="#home" className="hover:text-blue-600">Home</a>
-            <a href="#features" className="hover:text-blue-600">Features</a>
-            <a href="#leaderboard" className="hover:text-blue-600">Leaderboard</a>
-            <Link href="/login">
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                Login
-              </button>
-            </Link>
-          </div>
+    {/* Logo Section */}
+    <div className="flex items-center space-x-3">
+      <Box
+        sx={{
+          width: 42,
+          height: 42,
+          borderRadius: 2,
+          bgcolor: "#1976d2",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 4px 12px rgba(25,118,210,0.3)",
+        }}
+      >
+        <BuildingIcon sx={{ color: "#fff", fontSize: 22 }} />
+      </Box>
 
-          {/* Mobile Button */}
-          <button
-            className="md:hidden text-2xl"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            ☰
-          </button>
-        </div>
+      <Typography
+        variant="h6"
+        sx={{
+          fontWeight: 700,
+          color: "#111",
+          letterSpacing: 0.5,
+        }}
+      >
+        CivicTrack
+      </Typography>
+    </div>
 
-        {/* Mobile Menu */}
-        {menuOpen && (
-          <div className="md:hidden bg-white px-6 pb-4 space-y-3">
-            <a href="#home" className="block">Home</a>
-            <a href="#features" className="block">Features</a>
-            <a href="#leaderboard" className="block">Leaderboard</a>
-            <Link href="/login" className="block">
-              <button className="w-full bg-blue-600 text-white py-2 rounded-lg">
-                Login
-              </button>
-            </Link>
-          </div>
-        )}
-      </nav>
+    {/* Desktop Menu */}
+    <div className="hidden md:flex items-center space-x-8 text-gray-600 font-medium">
+      <a href="#home" className="relative group">
+        Home
+        <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+      </a>
+
+      <a href="#features" className="relative group">
+        Features
+        <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+      </a>
+
+      <a href="#leaderboard" className="relative group">
+        Leaderboard
+        <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+      </a>
+
+      <Link href="/login">
+        <button className="bg-blue-600 text-white px-5 py-2 rounded-xl shadow-md hover:bg-blue-700 hover:shadow-lg transition duration-300">
+          Login
+        </button>
+      </Link>
+    </div>
+
+    {/* Mobile Toggle */}
+    <button
+      className="md:hidden text-2xl text-gray-700"
+      onClick={() => setMenuOpen(!menuOpen)}
+    >
+      ☰
+    </button>
+  </div>
+
+  {/* Mobile Menu */}
+  {menuOpen && (
+    <div className="md:hidden bg-white border-t border-gray-100 px-6 pb-6 pt-4 space-y-4 shadow-md">
+      <a href="#home" className="block text-gray-700 font-medium">Home</a>
+      <a href="#features" className="block text-gray-700 font-medium">Features</a>
+      <a href="#leaderboard" className="block text-gray-700 font-medium">Leaderboard</a>
+
+      <Link href="/login">
+        <button className="w-full bg-blue-600 text-white py-2 rounded-xl shadow hover:bg-blue-700 transition">
+          Login
+        </button>
+      </Link>
+    </div>
+  )}
+</nav>
 
       {/* ================= HERO ================= */}
       <section

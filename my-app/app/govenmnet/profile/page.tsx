@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Box,
   Card,
@@ -12,6 +13,8 @@ import {
   useTheme,
   useMediaQuery,
   Grid,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 import {
   Email,
@@ -21,18 +24,55 @@ import {
   Shield,
   Edit as EditIcon,
   AccountCircle,
+  Logout as LogoutIcon,
 } from "@mui/icons-material";
 import GovNavbar from "../../component/GovNavbar";
+import { authApi, type ProfileResponse } from "../../../lib/api";
+import { useAppDispatch } from "../../../store/hooks";
+import { logout } from "../../../store/authSlice";
+
+function formatMemberSince(createdAt?: string) {
+  if (!createdAt) return "—";
+  try {
+    const d = new Date(createdAt);
+    return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  } catch {
+    return createdAt;
+  }
+}
 
 export default function AdminProfilePage() {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [profile, setProfile] = useState<ProfileResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    authApi
+      .getProfile()
+      .then((res: { ok: true; data: ProfileResponse } | { ok: false; error: string }) => {
+        if (res.ok) setProfile(res.data);
+        else setError(res.error || "Failed to load profile");
+      })
+      .catch(() => setError("Network error"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleLogout = async () => {
+    await authApi.logout();
+    if (typeof window !== "undefined") window.localStorage.removeItem("token");
+    dispatch(logout());
+    router.push("/login");
+  };
 
   const contactItems = [
-    { Icon: Email, label: "Email", value: "admin@citygovernment.gov" },
-    { Icon: LocationOn, label: "Department", value: "Department of State" },
-    { Icon: Phone, label: "Phone", value: "+1 (555) 123-4567" },
-    { Icon: CalendarMonth, label: "Member Since", value: "January 2024" },
+    { Icon: Email, label: "Government ID", value: profile?.email ?? "—" },
+    { Icon: LocationOn, label: "Address", value: profile?.address ?? "—" },
+    { Icon: Phone, label: "Phone", value: profile?.phone ?? "—" },
+    { Icon: CalendarMonth, label: "Member Since", value: formatMemberSince(profile?.createdAt) },
   ];
 
   const permissions = [
@@ -47,6 +87,30 @@ export default function AdminProfilePage() {
     { value: "18", label: "Budgets Approved" },
     { value: "156", label: "Reports Generated" },
   ];
+
+  if (loading) {
+    return (
+      <Box sx={{ minHeight: "100vh", bgcolor: "#f5f7fb" }}>
+        <GovNavbar />
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+          <CircularProgress sx={{ color: "#1976d2" }} />
+        </Box>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ minHeight: "100vh", bgcolor: "#f5f7fb" }}>
+        <GovNavbar />
+        <Box sx={{ p: isMobile ? 2 : 4, maxWidth: 900, mx: "auto" }}>
+          <Alert severity="error" onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f7fb" }}>
@@ -92,26 +156,44 @@ export default function AdminProfilePage() {
               </Avatar>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="h5" fontWeight="bold" color="text.primary">
-                  Admin User
+                  {profile?.name ?? "Government User"}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                  System Administrator
+                  {profile?.role === "government" ? "Government Official" : "System Administrator"}
                 </Typography>
               </Box>
-              <Button
-                variant="contained"
-                startIcon={<EditIcon />}
-                href="/govenmnet/profile/edit"
-                sx={{
-                  bgcolor: "#1976d2",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  px: 2.5,
-                  py: 1.25,
-                }}
-              >
-                Edit Profile
-              </Button>
+              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                <Button
+                  variant="contained"
+                  startIcon={<EditIcon />}
+                  href="/govenmnet/profile/edit"
+                  sx={{
+                    bgcolor: "#1976d2",
+                    textTransform: "none",
+                    fontWeight: 600,
+                    px: 2.5,
+                    py: 1.25,
+                  }}
+                >
+                  Edit Profile
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<LogoutIcon />}
+                  onClick={handleLogout}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    px: 2.5,
+                    py: 1.25,
+                    borderColor: "#d32f2f",
+                    color: "#d32f2f",
+                    "&:hover": { borderColor: "#b71c1c", bgcolor: "rgba(211,47,47,0.04)" },
+                  }}
+                >
+                  Logout
+                </Button>
+              </Box>
             </Box>
             <Box
               sx={{
