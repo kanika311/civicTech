@@ -63,9 +63,11 @@ export type RegisterGovernmentPayload = {
 };
 export type RegisterResponse = { message: string };
 
+type JsonRequestInit = Omit<RequestInit, "body"> & { body?: object };
+
 async function request<T>(
   url: string,
-  options: RequestInit & { body?: object } = {}
+  options: JsonRequestInit = {}
 ): Promise<{ data: T; ok: true } | { error: string; ok: false }> {
   const { body, ...rest } = options;
   const headers: HeadersInit = {
@@ -76,7 +78,7 @@ async function request<T>(
     const res = await fetch(url, {
       ...rest,
       headers,
-      body: body ? JSON.stringify(body) : options.body,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -211,7 +213,7 @@ export type LeaderboardEntry = {
 
 function citizenRequest<T>(
   url: string,
-  options: RequestInit & { body?: object } = {}
+  options: JsonRequestInit = {}
 ): Promise<{ data: T; ok: true } | { error: string; ok: false }> {
   const headers = getAuthHeaders();
   if (!headers.Authorization) {
@@ -270,7 +272,7 @@ export const citizenApi = {
 /** Government dashboard (requires auth, government role) */
 function governmentRequest<T>(
   url: string,
-  options: RequestInit & { body?: object } = {}
+  options: JsonRequestInit = {}
 ): Promise<{ data: T; ok: true } | { error: string; ok: false }> {
   const headers = getAuthHeaders();
   if (!headers.Authorization) {
