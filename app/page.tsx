@@ -1,201 +1,210 @@
 "use client";
 
-import { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { Box, Typography } from "@mui/material";
-
+import Navbar from "./component/Navbar";
+import { CATEGORY_CONFIGS } from "@/lib/seedData";
 import {
- 
-  Business as BuildingIcon,
-  
-} from "@mui/icons-material";
+  User,
+  Building2,
+  Camera,
+  Box,
+  Clock,
+  Sparkles,
+  Lock,
+  Landmark,
+  ArrowRight,
+  CheckCircle2,
+  Compass,
+  HardHat,
+} from "lucide-react";
 
-export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
-
+export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col transition-colors">
+      <Navbar />
 
-      {/* ================= NAVBAR ================= */}
-      <nav className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-md shadow-sm z-50 border-b border-gray-100">
-  <div className="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
-
-    {/* Logo Section */}
-    <div className="flex items-center space-x-3">
-      <Box
-        sx={{
-          width: 42,
-          height: 42,
-          borderRadius: 2,
-          bgcolor: "#1976d2",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          boxShadow: "0 4px 12px rgba(25,118,210,0.3)",
-        }}
-      >
-        <BuildingIcon sx={{ color: "#fff", fontSize: 22 }} />
-      </Box>
-
-      <Typography
-        variant="h6"
-        sx={{
-          fontWeight: 700,
-          color: "#111",
-          letterSpacing: 0.5,
-        }}
-      >
-        CivicTrack
-      </Typography>
-    </div>
-
-    {/* Desktop Menu */}
-    <div className="hidden md:flex items-center space-x-8 text-gray-600 font-medium">
-      <a href="#home" className="relative group">
-        Home
-        <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
-      </a>
-
-      <a href="#features" className="relative group">
-        Features
-        <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
-      </a>
-
-      <a href="#leaderboard" className="relative group">
-        Leaderboard
-        <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
-      </a>
-
-      <Link href="/login">
-        <button className="bg-blue-600 text-white px-5 py-2 rounded-xl shadow-md hover:bg-blue-700 hover:shadow-lg transition duration-300">
-          Login
-        </button>
-      </Link>
-    </div>
-
-    {/* Mobile Toggle */}
-    <button
-      className="md:hidden text-2xl text-gray-700"
-      onClick={() => setMenuOpen(!menuOpen)}
-    >
-      ☰
-    </button>
-  </div>
-
-  {/* Mobile Menu */}
-  {menuOpen && (
-    <div className="md:hidden bg-white border-t border-gray-100 px-6 pb-6 pt-4 space-y-4 shadow-md">
-      <a href="#home" className="block text-gray-700 font-medium">Home</a>
-      <a href="#features" className="block text-gray-700 font-medium">Features</a>
-      <a href="#leaderboard" className="block text-gray-700 font-medium">Leaderboard</a>
-
-      <Link href="/login">
-        <button className="w-full bg-blue-600 text-white py-2 rounded-xl shadow hover:bg-blue-700 transition">
-          Login
-        </button>
-      </Link>
-    </div>
-  )}
-</nav>
-
-      {/* ================= HERO ================= */}
-      <section
-        id="home"
-        className="h-screen flex items-center justify-center text-center text-white relative pt-20"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1505761671935-60b3a7427bad')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="absolute inset-0 bg-blue-900/70"></div>
-
-        <div className="relative z-10 max-w-3xl px-6">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Transparent Governance Starts With You
-          </h2>
-
-          <p className="text-lg md:text-xl mb-8">
-            Report civic issues, track resolution, and build a smarter city.
-          </p>
-
-          <Link href="/login">
-            <button className="bg-green-500 px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition">
-              Submit Complaint
-            </button>
-          </Link>
-        </div>
-      </section>
-
-      {/* ================= FEATURES ================= */}
-      <section id="features" className="py-20 bg-white px-6">
-        <h2 className="text-3xl font-bold text-center mb-12 text-blue-700">
-          Platform Features
-        </h2>
-
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          <FeatureCard title="Geo-tag Complaints" />
-          <FeatureCard title="Live Status Tracking" />
-          <FeatureCard title="Civic Points System" />
-        </div>
-      </section>
-
-      {/* ================= LEADERBOARD ================= */}
-      <section id="leaderboard" className="py-20 bg-gray-100 px-6">
-        <h2 className="text-3xl font-bold text-center mb-12 text-blue-700">
-          Top Civic Contributors
-        </h2>
-
-        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow p-6">
-          <ul className="space-y-4">
-            <li className="flex justify-between">
-              <span>1. Riya Sharma</span>
-              <span className="font-semibold text-green-600">1200 pts</span>
-            </li>
-            <li className="flex justify-between">
-              <span>2. Aman Gupta</span>
-              <span className="font-semibold text-green-600">980 pts</span>
-            </li>
-            <li className="flex justify-between">
-              <span>3. Neha Patel</span>
-              <span className="font-semibold text-green-600">870 pts</span>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      {/* ================= FOOTER ================= */}
-      <footer className="bg-blue-900 text-white py-8 mt-auto">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <h3 className="text-xl font-semibold mb-2">CivicTrack</h3>
-          <p className="text-sm opacity-80">
-            Empowering citizens through transparency and accountability.
-          </p>
-
-          <div className="mt-4 space-x-6 text-sm">
-            <a href="#home" className="hover:underline">Home</a>
-            <a href="#features" className="hover:underline">Features</a>
-            <a href="#leaderboard" className="hover:underline">Leaderboard</a>
+      <main className="flex-1 w-full space-y-16 pb-20">
+        {/* HERO SECTION */}
+        <section className="relative pt-12 pb-14 px-4 sm:px-6 max-w-7xl mx-auto text-center space-y-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-500/30 text-xs font-bold text-blue-700 dark:text-blue-300 shadow-sm">
+            <Sparkles size={14} className="text-blue-600 dark:text-cyan-400" />
+            Universal Government Grievance Redressal &amp; Spatial Oversight
           </div>
 
-          <p className="mt-4 text-xs opacity-60">
-            © 2026 CivicTrack. All rights reserved.
+          <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 dark:text-white max-w-4xl mx-auto leading-tight">
+            Report <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 dark:from-blue-400 dark:via-cyan-300 dark:to-emerald-400">ANY</span> Government Problem. Track to Resolution.
+          </h1>
+
+          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+            Universal citizen grievance reporting across all 10 departments with browser-based AR spatial evidence, 3D VR official oversight, and automated SLA escalation.
           </p>
-        </div>
-      </footer>
 
-    </div>
-  );
-}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link
+              href="/citizen/submit-universal"
+              className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm shadow-xl shadow-blue-600/30 flex items-center gap-2 transition"
+            >
+              <Camera size={18} /> Report Grievance (AR Capture)
+            </Link>
 
-function FeatureCard({ title }: { title: string }) {
-  return (
-    <div className="bg-gray-100 p-6 rounded-xl shadow hover:shadow-lg transition">
-      <h3 className="text-xl font-semibold text-blue-600 mb-3">{title}</h3>
-      <p className="text-gray-600 text-sm">
-        Modern solution for efficient civic issue reporting and tracking.
-      </p>
+            <Link
+              href="/government"
+              className="px-6 py-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-sm flex items-center gap-2 shadow-sm transition"
+            >
+              <Building2 size={18} className="text-indigo-600 dark:text-indigo-400" /> Government Portal (Govt)
+            </Link>
+
+            <Link
+              href="/transparency"
+              className="px-6 py-3.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-bold text-sm flex items-center gap-2 transition"
+            >
+              Transparency Scores
+            </Link>
+          </div>
+        </section>
+
+        {/* 2 PRIMARY OPERATING ROLES: CITIZEN VS GOVERNMENT */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+              Choose Your Role
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              Dedicated, tailored interfaces for Citizens and Government Officials.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {/* Citizen Role Card */}
+            <div className="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col justify-between space-y-6 hover:shadow-2xl transition">
+              <div className="space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                  <User size={30} />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Citizen (नागरिक)</h3>
+                  <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mt-0.5">
+                    Report Problems • Live SLA Tracking • Earn Civic Points
+                  </p>
+                </div>
+                <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    AR camera spatial capture (GPS + compass heading)
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    AI-powered category auto-routing &amp; voice dictation
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    AR Ghost preview to visually inspect resolved sites
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    Protected anonymous corruption whistleblower reporting
+                  </li>
+                </ul>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                <Link
+                  href="/citizen/dashboard"
+                  className="flex-1 py-3 text-center rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md shadow-blue-600/20 transition"
+                >
+                  Citizen Dashboard
+                </Link>
+                <Link
+                  href="/citizen/submit-universal"
+                  className="flex-1 py-3 text-center rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold text-xs transition border border-slate-200 dark:border-slate-700"
+                >
+                  + Report Issue
+                </Link>
+              </div>
+            </div>
+
+            {/* Government Role Card */}
+            <div className="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col justify-between space-y-6 hover:shadow-2xl transition">
+              <div className="space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-600/20 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                  <Building2 size={30} />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Government (सरकारी अधिकारी)</h3>
+                  <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mt-0.5">
+                    Department Queues • 3D/VR Command • AR Field-Assist
+                  </p>
+                </div>
+                <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    Manage tickets across all 10 official government departments
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    AR Field-Assist view with distance radar and ghost overlay
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    3D/VR district terrain &amp; complaint density heatmaps
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    Automated SLA escalation monitoring &amp; resolution proof uploads
+                  </li>
+                </ul>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                <Link
+                  href="/government"
+                  className="w-full py-3 text-center rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition flex items-center justify-center gap-2"
+                >
+                  <span>Enter Government Control Center</span>
+                  <ArrowRight size={14} />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 10 CATEGORY TAXONOMY */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+              Universal 10-Department Taxonomy
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              Citizens can report ANY government problem. Automatic routing and statutory legal SLA timelines.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {CATEGORY_CONFIGS.map((cat, idx) => (
+              <div
+                key={cat.category}
+                className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 flex flex-col justify-between shadow-sm"
+              >
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono text-indigo-600 dark:text-cyan-400 uppercase tracking-wider block font-bold">
+                    #{idx + 1} {cat.autoRouteCode}
+                  </span>
+                  <h4 className="font-bold text-slate-900 dark:text-white text-sm leading-snug">{cat.category}</h4>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{cat.department}</p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                  <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">SLA: {cat.defaultSlaDays} Days</span>
+                  <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-[10px]">
+                    {cat.isVisualARCategory ? "AR Visual" : "Form"}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

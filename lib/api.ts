@@ -6,8 +6,8 @@
 
 const API_ORIGIN =
   typeof window !== "undefined"
-    ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000")
-    : process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    ? (process.env.NEXT_PUBLIC_API_URL || "")
+    : process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 const API_BASE = API_ORIGIN + "/api";
 
